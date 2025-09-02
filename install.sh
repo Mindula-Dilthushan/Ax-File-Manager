@@ -21,6 +21,8 @@ NODE_VERSION="20"
 
 # ---------- CREATE ROOT FOLDER ----------
 mkdir -p "$APP_FOLDER_FULL"
+chmod -R 755 "$APP_FOLDER_FULL"
+chown -R $USER:$USER "$APP_FOLDER_FULL"
 echo "ROOT_FOLDER created at $APP_FOLDER_FULL"
 
 # ---------- INSTALL SYSTEM TOOLS ----------
@@ -36,16 +38,16 @@ sudo npm install -g pm2
 
 # ---------- CLONE REPO ----------
 if [ -d "$APP_DIR" ]; then
-  echo "App folder exists. Pulling latest changes..."
-  cd "$APP_DIR"
-  git pull
+    echo "App folder exists. Pulling latest changes..."
+    cd "$APP_DIR"
+    git pull
 else
-  if [[ "$PRIVATE_REPO" == "y" || "$PRIVATE_REPO" == "Y" ]]; then
-      git clone "https://$GH_TOKEN@github.com/Mindula-Dilthushan/Ax-File-Manager.git" "$APP_DIR"
-  else
-      git clone "$GITHUB_REPO" "$APP_DIR"
-  fi
-  cd "$APP_DIR"
+    if [[ "$PRIVATE_REPO" == "y" || "$PRIVATE_REPO" == "Y" ]]; then
+        git clone "https://$GH_TOKEN@github.com/Mindula-Dilthushan/Ax-File-Manager.git" "$APP_DIR"
+    else
+        git clone "$GITHUB_REPO" "$APP_DIR"
+    fi
+    cd "$APP_DIR"
 fi
 
 # ---------- CREATE CONFIG.JSON ----------
@@ -64,12 +66,15 @@ npm install
 # ---------- START PANEL WITH PM2 ----------
 pm2 start panel.js --name "$APP_NAME"
 pm2 save
-pm2 startup systemd
+
+# Setup PM2 to auto-start on reboot
+STARTUP_CMD=$(pm2 startup systemd | tail -n 1)
+echo "Run the following command to enable PM2 startup on reboot:"
+echo "$STARTUP_CMD"
 
 # ---------- Final Instructions ----------
 echo "---------------------------------------------"
 echo "Setup complete!"
 echo "Panel is running at: http://<your-vm-ip>:4000"
 echo "Make sure port 4000 is open in your firewall."
-echo "To enable PM2 startup on reboot, run the command shown above by pm2 startup."
 echo "---------------------------------------------"
