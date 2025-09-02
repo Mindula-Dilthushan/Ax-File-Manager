@@ -9,7 +9,7 @@ echo
 APP_FOLDER_FULL="$HOME/$APP_FOLDER"
 
 # ---------- VARIABLES ----------
-GITHUB_REPO="git@github.com:Mindula-Dilthushan/Ax-File-Manager.git" # Replace with your repo
+GITHUB_REPO="https://github.com/Mindula-Dilthushan/Ax-File-Manager.git" # Replace with your repo
 APP_NAME="file-panel"
 APP_DIR="$HOME/$APP_NAME"
 NODE_VERSION="20"
