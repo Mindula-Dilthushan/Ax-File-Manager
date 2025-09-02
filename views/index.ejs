@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>File Panel</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h1>File Panel</h1>
+
+<h2>Files</h2>
+<ul>
+  <% files.forEach(f => { %>
+    <li>
+      <%= f %> | 
+      <a href="/download/<%= f %>">Download</a> | 
+      <a href="/edit/<%= f %>">Edit</a>
+    </li>
+  <% }) %>
+</ul>
+
+<h2>Upload</h2>
+<form action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="file">
+  <button type="submit">Upload</button>
+</form>
+
+<h2>App Control</h2>
+<form action="/restart" method="post">
+  <button type="submit">Restart App</button>
+</form>
+</body>
+</html>
