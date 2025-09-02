@@ -5,6 +5,11 @@ read -p "Enter the app folder path (relative to home, e.g., my-app): " APP_FOLDE
 read -p "Enter panel username: " PANEL_USER
 read -sp "Enter panel password: " PANEL_PASS
 echo
+read -p "Is your GitHub repo private? (y/n): " PRIVATE_REPO
+
+if [[ "$PRIVATE_REPO" == "y" || "$PRIVATE_REPO" == "Y" ]]; then
+    read -p "Enter your GitHub Personal Access Token: " GH_TOKEN
+fi
 
 APP_FOLDER_FULL="$HOME/$APP_FOLDER"
 
@@ -14,9 +19,13 @@ APP_NAME="file-panel"
 APP_DIR="$HOME/$APP_NAME"
 NODE_VERSION="20"
 
+# ---------- CREATE ROOT FOLDER ----------
+mkdir -p "$APP_FOLDER_FULL"
+echo "ROOT_FOLDER created at $APP_FOLDER_FULL"
+
 # ---------- INSTALL SYSTEM TOOLS ----------
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y curl git
+sudo apt install -y curl git build-essential
 
 # ---------- INSTALL NODE ----------
 curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | sudo -E bash -
@@ -25,17 +34,21 @@ sudo apt install -y nodejs
 # ---------- INSTALL PM2 ----------
 sudo npm install -g pm2
 
-# ---------- CLONE REPO DIRECTLY ----------
+# ---------- CLONE REPO ----------
 if [ -d "$APP_DIR" ]; then
   echo "App folder exists. Pulling latest changes..."
-  cd $APP_DIR
+  cd "$APP_DIR"
   git pull
 else
-  git clone $GITHUB_REPO $APP_DIR
-  cd $APP_DIR
+  if [[ "$PRIVATE_REPO" == "y" || "$PRIVATE_REPO" == "Y" ]]; then
+      git clone "https://$GH_TOKEN@github.com/Mindula-Dilthushan/Ax-File-Manager.git" "$APP_DIR"
+  else
+      git clone "$GITHUB_REPO" "$APP_DIR"
+  fi
+  cd "$APP_DIR"
 fi
 
-# ---------- CREATE CONFIG.JSON DYNAMICALLY ----------
+# ---------- CREATE CONFIG.JSON ----------
 cat > config.json <<EOL
 {
   "ROOT_FOLDER": "$APP_FOLDER_FULL",
@@ -43,14 +56,20 @@ cat > config.json <<EOL
   "PASSWORD": "$PANEL_PASS"
 }
 EOL
+echo "config.json created successfully."
 
 # ---------- INSTALL DEPENDENCIES ----------
 npm install
 
-# ---------- START PANEL ----------
-pm2 start panel.js --name $APP_NAME
+# ---------- START PANEL WITH PM2 ----------
+pm2 start panel.js --name "$APP_NAME"
 pm2 save
 pm2 startup systemd
 
+# ---------- Final Instructions ----------
+echo "---------------------------------------------"
 echo "Setup complete!"
-echo "Panel is running at 4000"
+echo "Panel is running at: http://<your-vm-ip>:4000"
+echo "Make sure port 4000 is open in your firewall."
+echo "To enable PM2 startup on reboot, run the command shown above by pm2 startup."
+echo "---------------------------------------------"
