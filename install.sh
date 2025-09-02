@@ -9,12 +9,12 @@ echo
 APP_FOLDER_FULL="$HOME/$APP_FOLDER"
 
 # ---------- VARIABLES ----------
-GITHUB_REPO="git@github.com/Mindula-Dilthushan/Ax-File-Manager.git"
+GITHUB_REPO="git@github.com:Mindula-Dilthushan/Ax-File-Manager.git" # Replace with your repo
 APP_NAME="file-panel"
 APP_DIR="$HOME/$APP_NAME"
 NODE_VERSION="20"
 
-# ---------- UPDATE SYSTEM ----------
+# ---------- INSTALL SYSTEM TOOLS ----------
 sudo apt update -y && sudo apt upgrade -y
 sudo apt install -y curl git
 
@@ -25,7 +25,7 @@ sudo apt install -y nodejs
 # ---------- INSTALL PM2 ----------
 sudo npm install -g pm2
 
-# ---------- CLONE REPO ----------
+# ---------- CLONE REPO DIRECTLY ----------
 if [ -d "$APP_DIR" ]; then
   echo "App folder exists. Pulling latest changes..."
   cd $APP_DIR
@@ -35,7 +35,7 @@ else
   cd $APP_DIR
 fi
 
-# ---------- CREATE config.json ----------
+# ---------- CREATE CONFIG.JSON DYNAMICALLY ----------
 cat > config.json <<EOL
 {
   "ROOT_FOLDER": "$APP_FOLDER_FULL",
